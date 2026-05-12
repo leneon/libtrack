@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LibTrack - Connexion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; min-height: 100vh; background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #0f172a 100%); display: flex; align-items: center; justify-content: center; }
+        
+        @keyframes logoColorChange {
+            0% { color: #3b82f6; text-shadow: 0 0 5px rgba(59,130,246,0.3); }
+            25% { color: #8b5cf6; text-shadow: 0 0 5px rgba(139,92,246,0.3); }
+            50% { color: #ec4899; text-shadow: 0 0 5px rgba(236,72,153,0.3); }
+            75% { color: #f59e0b; text-shadow: 0 0 5px rgba(245,158,11,0.3); }
+            100% { color: #3b82f6; text-shadow: 0 0 5px rgba(59,130,246,0.3); }
+        }
+        .logo-animated { animation: logoColorChange 3s ease-in-out infinite; font-size: 2rem !important; font-weight: 800; }
+        .logo-circle i { animation: logoColorChange 3s ease-in-out infinite; }
+        
+        .container { width: 100%; max-width: 1200px; margin: 20px; padding: 40px; }
+        .welcome-card { background: rgba(255,255,255,0.95); border-radius: 40px; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); }
+        .content-wrapper { display: flex; flex-wrap: wrap; }
+        .left-section { flex: 1; padding: 50px; background: linear-gradient(135deg, #0f172a, #1e293b); color: white; text-align: center; }
+        .logo-container { width: 200px; height: 200px; margin: 0 auto 30px; animation: rotateLogo 8s ease-in-out infinite; }
+        @keyframes rotateLogo { 0% { transform: rotate(0deg) scale(1); } 50% { transform: rotate(180deg) scale(1.05); } 100% { transform: rotate(360deg) scale(1); } }
+        .logo-circle { width: 100%; height: 100%; background: linear-gradient(135deg, #3b82f6, #8b5cf6); border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .logo-circle i { font-size: 5rem; color: white; }
+        .left-section h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 10px; }
+        .left-section h1 span { color: #3b82f6; }
+        .right-section { flex: 1; padding: 50px; background: white; }
+        .right-section h2 { font-size: 1.8rem; font-weight: 700; color: #0f172a; margin-bottom: 10px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-weight: 600; color: #1e293b; margin-bottom: 8px; }
+        .form-group input { width: 100%; padding: 14px 18px; border: 2px solid #e2e8f0; border-radius: 16px; font-size: 1rem; }
+        .form-group input:focus { outline: none; border-color: #3b82f6; }
+        .btn-login { width: 100%; padding: 14px; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; border: none; border-radius: 16px; font-size: 1rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .error-message { background: #fef2f2; color: #dc2626; padding: 12px 16px; border-radius: 12px; margin-bottom: 20px; }
+        .daily-quote { background: #f1f5f9; padding: 15px; border-radius: 16px; margin: 20px 0; text-align: center; }
+        .features { display: flex; justify-content: space-between; margin-top: 30px; padding-top: 20px; border-top: 1px solid #e2e8f0; }
+        .feature-item { text-align: center; flex: 1; }
+        .feature-item i { font-size: 1.2rem; color: #3b82f6; margin-bottom: 5px; }
+        .footer { text-align: center; padding: 20px; background: rgba(255,255,255,0.9); font-size: 0.7rem; color: #64748b; }
+        @media (max-width: 768px) { .content-wrapper { flex-direction: column; } .left-section, .right-section { padding: 30px; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="welcome-card">
+            <div class="content-wrapper">
+                <div class="left-section">
+                    <div class="logo-container"><div class="logo-circle"><i class="fas fa-book-open"></i></div></div>
+                    <h1>Lib<span class="logo-animated">Track</span></h1>
+                    <p class="subtitle">Gestion de bibliothèque universitaire</p>
+                </div>
+                <div class="right-section">
+                    <h2><i class="fas fa-arrow-right"></i> Connexion</h2>
+                    {% if error %}<div class="error-message"><i class="fas fa-exclamation-circle"></i> {{ error }}</div>{% endif %}
+                    <div class="daily-quote"><i class="fas fa-quote-left"></i> “{{ citation.0|default:"Un livre est un jardin qu'on porte dans sa poche." }}”<div class="quote-author">— {{ citation.1|default:"Proverbe chinois" }}</div></div>
+                    <form method="post">{% csrf_token %}
+                        <div class="form-group"><label><i class="fas fa-user"></i> Nom d'utilisateur</label><input type="text" name="username" placeholder="Entrez votre nom d'utilisateur" required></div>
+                        <div class="form-group"><label><i class="fas fa-lock"></i> Mot de passe</label><input type="password" name="password" placeholder="Entrez votre mot de passe" required></div>
+                        <button type="submit" class="btn-login"><i class="fas fa-sign-in-alt"></i> Se connecter</button>
+                    </form>
+                    <div class="features"><div class="feature-item"><i class="fas fa-users"></i><span>Étudiants</span></div><div class="feature-item"><i class="fas fa-book"></i><span>Livres</span></div><div class="feature-item"><i class="fas fa-chart-line"></i><span>Statistiques</span></div></div>
+                </div>
+            </div>
+            <div class="footer"><p><i class="fas fa-copyright"></i> 2026 LibTrack - Gestion de bibliothèque</p></div>
+        </div>
+    </div>
+</body>
+</html>

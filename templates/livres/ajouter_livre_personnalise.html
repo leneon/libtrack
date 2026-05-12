@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>LibTrack - Ajouter un livre</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f0f4f8; }
+        .container { max-width: 600px; margin: 50px auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { margin-bottom: 20px; color: #1a2a3a; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-weight: 600; margin-bottom: 5px; color: #1e293b; }
+        input, select { width: 100%; padding: 10px; border: 1px solid #e2e8f0; border-radius: 8px; }
+        button { background: #3b82f6; color: white; border: none; padding: 12px; border-radius: 8px; width: 100%; font-weight: 600; cursor: pointer; }
+        .btn-back { background: #64748b; margin-top: 10px; }
+        .alert { padding: 10px; border-radius: 8px; margin-bottom: 15px; }
+        .alert-success { background: #dcfce7; color: #166534; }
+        .alert-error { background: #fee2e2; color: #991b1b; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1><i class="fas fa-book"></i> Ajouter un livre</h1>
+        {% if messages %}{% for message in messages %}<div class="alert alert-{% if 'success' in message.tags %}success{% else %}error{% endif %}">{{ message }}</div>{% endfor %}{% endif %}
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group"><label>📖 Numéro du livre *</label><input type="text" name="numero_livre" placeholder="Ex: LIV-001" required></div>
+            <div class="form-group"><label>📚 Titre *</label><input type="text" name="titre" placeholder="Titre du livre" required></div>
+            <div class="form-group"><label>✍️ Auteur *</label><input type="text" name="auteur" placeholder="Nom de l'auteur" required></div>
+            <div class="form-group"><label>🏷️ Catégorie</label><select name="categorie"><option value="">-- Sélectionner --</option>{% for cat in categories %}<option value="{{ cat.id }}">{{ cat.nom }}</option>{% endfor %}</select></div>
+            <div class="form-group"><label>📍 Emplacement</label><input type="text" name="emplacement" placeholder="Ex: Étagère A-12" value="A-01"></div>
+            <button type="submit"><i class="fas fa-save"></i> Ajouter le livre</button>
+            <a href="/"><button type="button" class="btn-back">← Retour</button></a>
+        </form>
+    </div>
+</body>
+</html>

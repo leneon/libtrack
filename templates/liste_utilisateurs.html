@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LibTrack - Utilisateurs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f0f4f8; }
+
+        .sidebar {
+            position: fixed; top: 0; left: 0; width: 280px; height: 100%;
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+        }
+        .sidebar-header { padding: 30px 25px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-header h2 { font-size: 1.8rem; font-weight: 700; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .sidebar-header h2 i { color: #3b82f6; }
+        .sidebar-menu { padding: 20px 15px; }
+        .menu-item {
+            display: flex; align-items: center; gap: 14px; padding: 12px 20px; margin: 6px 0;
+            color: #cbd5e1; text-decoration: none; border-radius: 12px; transition: all 0.3s;
+        }
+        .menu-item i { width: 24px; }
+        .menu-item:hover { background: rgba(59,130,246,0.15); color: white; }
+        .menu-item.active { background: #3b82f6; color: white; }
+
+        .main-content { margin-left: 280px; padding: 30px 40px; }
+        .top-bar { background: white; padding: 15px 25px; border-radius: 16px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
+        .page-title h1 { font-size: 1.5rem; font-weight: 700; color: #1a2a3a; }
+
+        .btn-add { background: #3b82f6; color: white; padding: 10px 20px; border-radius: 12px; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px; }
+        .table-container { background: white; border-radius: 20px; overflow: hidden; }
+        table { width: 100%; border-collapse: collapse; }
+        th { text-align: left; padding: 14px 12px; background: #f8fafc; font-weight: 600; color: #475569; }
+        td { padding: 12px; border-bottom: 1px solid #eef2f6; }
+        .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
+        .badge-super { background: #fef3c7; color: #d97706; }
+        .badge-admin { background: #dcfce7; color: #10b981; }
+        .badge-bib { background: #e0f2fe; color: #0284c7; }
+        .btn-delete { background: #ef4444; color: white; border: none; padding: 4px 10px; border-radius: 8px; cursor: pointer; }
+        .btn-delete:hover { background: #dc2626; }
+        .footer { text-align: center; padding: 20px; color: #6c86a0; font-size: 0.7rem; margin-top: 30px; }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 70px; }
+            .sidebar-header { padding: 25px 10px; }
+            .sidebar-header h2 span, .sidebar-menu span { display: none; }
+            .sidebar-menu { padding: 15px 10px; }
+            .menu-item { justify-content: center; padding: 12px; }
+            .menu-item i { width: auto; }
+            .main-content { margin-left: 70px; padding: 20px 15px; }
+            .top-bar { align-items: flex-start; padding: 16px; }
+            .page-title h1 { font-size: 1.2rem; }
+            .btn-add { width: 100%; justify-content: center; }
+            .table-container { overflow-x: auto; }
+            table { min-width: 680px; }
+        }
+
+        @media (max-width: 480px) {
+            .main-content { padding: 15px 10px; }
+            th, td { padding: 10px 8px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header"><h2><i class="fas fa-book-open"></i><span> LibTrack</span></h2></div>
+        <div class="sidebar-menu">
+            <a href="/" class="menu-item"><i class="fas fa-chart-line"></i><span> Dashboard</span></a>
+            <a href="/non-rendus/" class="menu-item"><i class="fas fa-exclamation-triangle"></i><span> Non rendus</span></a>
+            <a href="/historique/" class="menu-item"><i class="fas fa-history"></i><span> Historique</span></a>
+            <a href="/tous-les-livres/" class="menu-item"><i class="fas fa-book"></i><span> Tous les livres</span></a>
+            <a href="/utilisateurs/" class="menu-item active"><i class="fas fa-users"></i><span> Utilisateurs</span></a>
+            <a href="/ajouter-utilisateur/" class="menu-item"><i class="fas fa-user-plus"></i><span> Ajouter</span></a>
+            <a href="/admin/logout/" class="menu-item"><i class="fas fa-sign-out-alt"></i><span> Déconnexion</span></a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="top-bar"><div class="page-title"><h1><i class="fas fa-users"></i> Gestion des utilisateurs</h1></div></div>
+
+        <a href="/ajouter-utilisateur/" class="btn-add"><i class="fas fa-user-plus"></i> Ajouter un utilisateur</a>
+
+        <div class="table-container">
+            <table>
+                <thead><tr><th>Utilisateur</th><th>Email</th><th>Établissement</th><th>Rôle</th><th>Action</th></tr></thead>
+                <tbody>
+                    {% for user in utilisateurs %}
+                    <tr>
+                        <td><strong>{{ user.username }}</strong><br><small>{{ user.first_name }} {{ user.last_name }}</small></td>
+                        <td>{{ user.email|default:"-" }}</td>
+                        <td>{{ user.profile.etablissement.nom|default:"-" }}</td>
+                        <td>{% if user.profile.role == 'super_admin' %}<span class="badge badge-super">⭐ Super Admin</span>{% elif user.profile.role == 'admin' %}<span class="badge badge-admin">👑 Admin</span>{% else %}<span class="badge badge-bib">📖 Bibliothécaire</span>{% endif %}</td>
+                        <td>{% if user.username != 'super_admin' %}<form method="post" action="/supprimer-utilisateur/{{ user.id }}/" onsubmit="return confirm('Supprimer ?')">{% csrf_token %}<button type="submit" class="btn-delete"><i class="fas fa-trash"></i></button></form>{% else %}<span style="color:#94a3b8;">Protégé</span>{% endif %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="footer"><p><i class="fas fa-copyright"></i> 2026 LibTrack - Gestion de bibliothèque</p></div>
+    </div>
+</body>
+</html>

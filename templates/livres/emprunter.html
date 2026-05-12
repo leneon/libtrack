@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Emprunter un livre - ISGI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f1f5f9; }
+        .container { max-width: 500px; margin: 50px auto; background: white; padding: 30px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        h1 { margin-bottom: 20px; color: #0f172a; }
+        label { display: block; margin: 15px 0 5px; font-weight: 500; }
+        select, input { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 10px; font-size: 1rem; }
+        button { background: #3b82f6; color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 20px; }
+        button:hover { background: #2563eb; }
+        .back { display: block; text-align: center; margin-top: 20px; color: #64748b; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📘 Nouvel emprunt</h1>
+        <form method="post">
+            {% csrf_token %}
+            <label>📖 Livre à emprunter</label>
+            <select name="livre_id" required>
+                <option value="">-- Choisir un livre --</option>
+                {% for livre in livres %}
+                <option value="{{ livre.id }}">{{ livre.numero_livre }} - {{ livre.titre }} (📍 {{ livre.emplacement }})</option>
+                {% endfor %}
+            </select>
+            
+            <label>🪪 Numéro de carte étudiant</label>
+            <input type="text" name="carte_id" placeholder="Ex: ISGI-001" required>
+            
+            <button type="submit">✅ Confirmer l'emprunt</button>
+        </form>
+        <a href="/" class="back">← Retour au tableau de bord</a>
+    </div>
+</body>
+</html>

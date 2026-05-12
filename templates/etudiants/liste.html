@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head><title>Étudiants</title></head>
+<body>
+    <h1>Liste des étudiants</h1>
+    <ul>
+        {% for e in etudiants %}
+        <li>{{ e.nom }} {{ e.prenom }} - {{ e.classe }}</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

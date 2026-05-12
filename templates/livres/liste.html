@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Livres - Bibliothèque ISGI</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .navbar {
+            background: #2c3e50;
+            color: white;
+            padding: 1rem 2rem;
+        }
+        
+        .navbar h1 {
+            display: inline-block;
+            margin-right: 2rem;
+        }
+        
+        .nav-links {
+            display: inline-block;
+        }
+        
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            margin: 0 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+        }
+        
+        .nav-links a:hover {
+            background: #34495e;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+        
+        table {
+            width: 100%;
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+        
+        th {
+            background: #667eea;
+            color: white;
+            padding: 1rem;
+            text-align: left;
+        }
+        
+        td {
+            padding: 1rem;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .disponible {
+            color: green;
+            font-weight: bold;
+        }
+        
+        .indisponible {
+            color: red;
+            font-weight: bold;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            background: #27ae60;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn:hover {
+            background: #219a52;
+        }
+        
+        .search-box {
+            margin-bottom: 2rem;
+        }
+        
+        .search-box input {
+            padding: 0.8rem;
+            width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .search-box button {
+            padding: 0.8rem 1.5rem;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>📚 Bibliothèque ISGI</h1>
+        <div class="nav-links">
+            <a href="/">Accueil</a>
+            <a href="/livres/">Livres</a>
+            <a href="/livres/prets/">Prêts en cours</a>
+            <a href="/admin/">Admin</a>
+        </div>
+    </div>
+    
+    <div class="container">
+        <h2>📖 Catalogue des livres</h2>
+        
+        <div class="search-box">
+            <form method="get">
+                <input type="text" name="q" placeholder="Rechercher un livre..." value="{{ request.GET.q }}">
+                <button type="submit">🔍 Rechercher</button>
+            </form>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>Titre</th>
+                    <th>Auteur</th>
+                    <th>Catégorie</th>
+                    <th>Disponibilité</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for livre in livres %}
+                <tr>
+                    <td>{{ livre.titre }}</td>
+                    <td>{{ livre.auteur }}</td>
+                    <td>{{ livre.categorie.nom|default:"-" }}</td>
+                    <td>
+                        {% if livre.disponible %}
+                            <span class="disponible">✅ Disponible</span>
+                        {% else %}
+                            <span class="indisponible">❌ Emprunté</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if livre.disponible %}
+                            <a href="/livres/emprunter/{{ livre.id }}/" class="btn">📘 Emprunter</a>
+                        {% else %}
+                            <span style="color: gray;">Indisponible</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" style="text-align: center;">Aucun livre trouvé.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

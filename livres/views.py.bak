@@ -1,0 +1,40 @@
+from django.shortcuts import render, redirect
+from django.contrib.auth import authenticate, login
+import random
+
+# Liste des citations inspirantes pour LibTrack
+CITATIONS = [
+    ("Une bibliothèque, c'est une maison où l'on soigne les âmes.", "Anonyme"),
+    ("Les bibliothèques sont les archives de l'humanité.", "Jorge Luis Borges"),
+    ("Un livre est un jardin qu'on porte dans sa poche.", "Proverbe chinois"),
+    ("Lire, c'est voyager sans bouger.", "Marcel Proust"),
+    ("La bibliothèque est le laboratoire de l'esprit.", "Victor Hugo"),
+    ("Un étudiant qui lit est un étudiant qui réussit.", "Anonyme"),
+    ("Rendre un livre, c'est offrir une aventure à un autre lecteur.", "Anonyme"),
+    ("LibTrack – Ne perdez plus aucun livre de vue.", "LibTrack"),
+    ("Un livre non rendu, c'est un récit qui n'a pas de fin.", "LibTrack"),
+    ("Avec LibTrack, chaque emprunt a une mémoire et chaque retour une date.", "LibTrack"),
+    ("Le savoir ne prend jamais de retard. Seuls les livres le font.", "LibTrack"),
+    ("Un livre en retard, c'est une histoire qui attend sa fin.", "LibTrack"),
+]
+
+def page_accueil(request):
+    # Choisir une citation aléatoire
+    citation_du_jour = random.choice(CITATIONS)
+    
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None and (user.is_superuser or user.is_staff):
+            login(request, user)
+            return redirect('/')
+        else:
+            return render(request, 'accueil.html', {
+                'error': 'Nom d\'utilisateur ou mot de passe incorrect. Accès réservé aux administrateurs.',
+                'citation': citation_du_jour
+            })
+    
+    return render(request, 'accueil.html', {'citation': citation_du_jour})

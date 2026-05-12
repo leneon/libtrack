@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion des prêts - Bibliothèque ISGI</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; }
+        
+        /* Sidebar */
+        .sidebar {
+            position: fixed; top: 0; left: 0; width: 260px; height: 100%;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white; padding: 20px 0;
+        }
+        .sidebar-header { text-align: center; padding: 20px; border-bottom: 1px solid #333; }
+        .sidebar-header h2 { font-size: 1.5rem; }
+        .menu-item { display: block; padding: 12px 25px; color: white; text-decoration: none; transition: 0.3s; }
+        .menu-item:hover { background: #0f3460; }
+        .menu-item i { width: 25px; margin-right: 10px; }
+        
+        /* Main content */
+        .main-content { margin-left: 260px; padding: 20px; }
+        .header { background: white; padding: 15px 25px; border-radius: 10px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .header h1 { color: #1a1a2e; font-size: 1.8rem; }
+        
+        /* Filters */
+        .filters { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; display: flex; gap: 15px; flex-wrap: wrap; align-items: center; }
+        .filter-btn { padding: 8px 20px; border: none; border-radius: 5px; cursor: pointer; transition: 0.3s; text-decoration: none; display: inline-block; }
+        .filter-btn.active { background: #1a1a2e; color: white; }
+        .filter-btn:hover { background: #0f3460; color: white; }
+        
+        /* Table */
+        .table-container { background: white; border-radius: 10px; overflow-x: auto; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: #1a1a2e; color: white; padding: 15px; text-align: left; }
+        td { padding: 12px 15px; border-bottom: 1px solid #eee; }
+        tr:hover { background: #f5f5f5; }
+        .retard { background: #ffebee; }
+        .badge-retard { background: #dc3545; color: white; padding: 3px 8px; border-radius: 20px; font-size: 0.7rem; }
+        .badge-normal { background: #28a745; color: white; padding: 3px 8px; border-radius: 20px; font-size: 0.7rem; }
+        .btn-retour { background: #28a745; color: white; border: none; padding: 5px 15px; border-radius: 5px; cursor: pointer; }
+        .btn-retour:hover { background: #218838; }
+        .emplacement { font-family: monospace; background: #f0f0f0; padding: 3px 8px; border-radius: 5px; font-size: 0.85rem; }
+        
+        .footer { text-align: center; padding: 20px; color: #666; margin-top: 30px; }
+        @media (max-width: 768px) { .sidebar { width: 70px; } .sidebar-header h2, .menu-item span { display: none; } .main-content { margin-left: 70px; } }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header"><h2>📚 ISGI</h2></div>
+        <a href="/" class="menu-item"><i>🏠</i><span> Dashboard</span></a>
+        <a href="/livres/" class="menu-item"><i>📖</i><span> Livres</span></a>
+        <a href="/livres/prets/" class="menu-item"><i>🔄</i><span> Prêts</span></a>
+        <a href="/admin/" class="menu-item"><i>⚙️</i><span> Admin</span></a>
+    </div>
+    
+    <div class="main-content">
+        <div class="header"><h1>📋 Suivi des prêts - Bibliothèque ISGI</h1></div>
+        
+        <div class="filters">
+            <strong>Filtrer par période :</strong>
+            <a href="?filtre=tous" class="filter-btn {% if filtre_actuel == 'tous' %}active{% endif %}">📅 Tous</a>
+            <a href="?filtre=semaine" class="filter-btn {% if filtre_actuel == 'semaine' %}active{% endif %}">📆 Cette semaine</a>
+            <a href="?filtre=mois" class="filter-btn {% if filtre_actuel == 'mois' %}active{% endif %}">📆 Ce mois</a>
+            <a href="?filtre=retard" class="filter-btn {% if filtre_actuel == 'retard' %}active{% endif %}">⚠️ En retard</a>
+            
+            {% if categories %}
+            <strong style="margin-left: 20px;">Catégorie :</strong>
+            <a href="?filtre={{ filtre_actuel }}" class="filter-btn {% if not categorie_actuelle %}active{% endif %}">📚 Toutes</a>
+            {% for cat in categories %}
+            <a href="?filtre={{ filtre_actuel }}&categorie={{ cat.id }}" class="filter-btn {% if categorie_actuelle == cat.id %}active{% endif %}">{{ cat.nom }}</a>
+            {% endfor %}
+            {% endif %}
+        </div>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>👨‍🎓 Étudiant</th>
+                        <th>📚 Classe / Faculté</th>
+                        <th>📖 Livre</th>
+                        <th>📍 Emplacement</th>
+                        <th>📅 Date emprunt</th>
+                        <th>⏰ Retour prévu</th>
+                        <th>🔄 Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for pret in prets %}
+                    <tr class="{% if pret.date_retour_prevue < now %}retard{% endif %}">
+                        <td><strong>{{ pret.etudiant.nom }} {{ pret.etudiant.prenom }}</strong><br><small>Carte: {{ pret.etudiant.carte_id }}</small></td>
+                        <td>
+                            {{ pret.etudiant.classe }}<br>
+                            <small>{{ pret.etudiant.faculte }}</small>
+                        </td>
+                        <td>
+                            <strong>{{ pret.livre.titre }}</strong><br>
+                            <small>{{ pret.livre.auteur }}</small>
+                        </td>
+                        <td><span class="emplacement">📍 {{ pret.livre.emplacement|default:"Non défini" }}</span></td>
+                        <td>{{ pret.date_emprunt|date:"d/m/Y H:i" }}</td>
+                        <td>
+                            {{ pret.date_retour_prevue|date:"d/m/Y" }}
+                            {% if pret.date_retour_prevue < now %}
+                                <span class="badge-retard">⚠️ EN RETARD</span>
+                            {% else %}
+                                <span class="badge-normal">Dans les délais</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <form method="post">
+                                {% csrf_token %}
+                                <input type="hidden" name="pret_id" value="{{ pret.id }}">
+                                <button type="submit" class="btn-retour">✅ Retourner</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="7" style="text-align: center; padding: 40px;">🎉 Tous les livres ont été retournés !</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="footer">
+            <p>© 2026 Bibliothèque ISGI - Suivi des prêts de livres</p>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LibTrack - Ajouter un utilisateur</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #f0f4f8; }
+
+        .sidebar {
+            position: fixed; top: 0; left: 0; width: 280px; height: 100%;
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+        }
+        .sidebar-header { padding: 30px 25px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .sidebar-header h2 { font-size: 1.8rem; font-weight: 700; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .sidebar-header h2 i { color: #3b82f6; }
+        .sidebar-menu { padding: 20px 15px; }
+        .menu-item {
+            display: flex; align-items: center; gap: 14px; padding: 12px 20px; margin: 6px 0;
+            color: #cbd5e1; text-decoration: none; border-radius: 12px; transition: all 0.3s;
+        }
+        .menu-item i { width: 24px; }
+        .menu-item:hover { background: rgba(59,130,246,0.15); color: white; }
+        .menu-item.active { background: #3b82f6; color: white; }
+
+        .main-content { margin-left: 280px; padding: 30px 40px; }
+        .top-bar { background: white; padding: 15px 25px; border-radius: 16px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; }
+        .page-title h1 { font-size: 1.5rem; font-weight: 700; color: #1a2a3a; }
+
+        .form-card { background: white; border-radius: 20px; padding: 30px; max-width: 600px; margin: 0 auto; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-weight: 600; color: #1e293b; margin-bottom: 8px; }
+        .form-group input, .form-group select { width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 12px; font-size: 0.9rem; }
+        .form-group input:focus { outline: none; border-color: #3b82f6; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .btn-submit { background: #3b82f6; color: white; border: none; padding: 14px; border-radius: 12px; width: 100%; font-weight: 600; cursor: pointer; }
+        .btn-submit:hover { background: #2563eb; }
+        .footer { text-align: center; padding: 20px; color: #6c86a0; font-size: 0.7rem; margin-top: 30px; }
+        .alert { padding: 12px 16px; border-radius: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+        .alert-success { background: #ecfdf5; color: #065f46; border-left: 4px solid #10b981; }
+        .alert-error { background: #fef2f2; color: #991b1b; border-left: 4px solid #ef4444; }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 70px; }
+            .sidebar-header { padding: 25px 10px; }
+            .sidebar-header h2 span, .sidebar-menu span { display: none; }
+            .sidebar-menu { padding: 15px 10px; }
+            .menu-item { justify-content: center; padding: 12px; }
+            .menu-item i { width: auto; }
+            .main-content { margin-left: 70px; padding: 20px 15px; }
+            .top-bar { padding: 16px; }
+            .page-title h1 { font-size: 1.2rem; }
+            .form-card { padding: 22px; max-width: 100%; }
+            .form-row { grid-template-columns: 1fr; gap: 0; }
+        }
+
+        @media (max-width: 480px) {
+            .main-content { padding: 15px 10px; }
+            .form-card { padding: 18px; border-radius: 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div class="sidebar-header"><h2><i class="fas fa-book-open"></i><span> LibTrack</span></h2></div>
+        <div class="sidebar-menu">
+            <a href="/" class="menu-item"><i class="fas fa-chart-line"></i><span> Dashboard</span></a>
+            <a href="/non-rendus/" class="menu-item"><i class="fas fa-exclamation-triangle"></i><span> Non rendus</span></a>
+            <a href="/historique/" class="menu-item"><i class="fas fa-history"></i><span> Historique</span></a>
+            <a href="/tous-les-livres/" class="menu-item"><i class="fas fa-book"></i><span> Tous les livres</span></a>
+            <a href="/utilisateurs/" class="menu-item active"><i class="fas fa-users"></i><span> Utilisateurs</span></a>
+            <a href="/ajouter-utilisateur/" class="menu-item"><i class="fas fa-user-plus"></i><span> Ajouter</span></a>
+            <a href="/admin/logout/" class="menu-item"><i class="fas fa-sign-out-alt"></i><span> Déconnexion</span></a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="top-bar"><div class="page-title"><h1><i class="fas fa-user-plus"></i> Ajouter un utilisateur</h1></div></div>
+
+        <div class="form-card">
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{% if message.tags == 'success' %}success{% else %}error{% endif %}">
+                    <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i> {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="form-row">
+                    <div class="form-group"><label><i class="fas fa-user"></i> Nom d'utilisateur *</label><input type="text" name="username" placeholder="ex: bibliothecaire" required></div>
+                    <div class="form-group"><label><i class="fas fa-envelope"></i> Email</label><input type="email" name="email" placeholder="ex: user@email.com"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label><i class="fas fa-user"></i> Prénom</label><input type="text" name="prenom" placeholder="Prénom"></div>
+                    <div class="form-group"><label><i class="fas fa-user"></i> Nom</label><input type="text" name="nom" placeholder="Nom"></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label><i class="fas fa-lock"></i> Mot de passe *</label><input type="password" name="password" placeholder="Mot de passe" required></div>
+                    <div class="form-group"><label><i class="fas fa-lock"></i> Confirmer *</label><input type="password" name="password2" placeholder="Confirmer" required></div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group"><label><i class="fas fa-building"></i> Établissement</label><select name="etablissement"><option value="">-- Aucun (Super Admin) --</option>{% for etab in etablissements %}<option value="{{ etab.id }}">{{ etab.nom }}</option>{% endfor %}</select></div>
+                    <div class="form-group"><label><i class="fas fa-tag"></i> Rôle</label><select name="role"><option value="bibliothecaire">📖 Bibliothécaire</option><option value="admin">👑 Administrateur</option><option value="super_admin">⭐ Super Admin</option></select></div>
+                </div>
+                <div class="form-group"><label><i class="fas fa-phone"></i> Téléphone</label><input type="tel" name="telephone" placeholder="Numéro de téléphone"></div>
+                <button type="submit" class="btn-submit"><i class="fas fa-save"></i> Créer l'utilisateur</button>
+            </form>
+        </div>
+        <div class="footer"><p><i class="fas fa-copyright"></i> 2026 LibTrack - Gestion de bibliothèque</p></div>
+    </div>
+</body>
+</html>
