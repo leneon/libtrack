@@ -25,6 +25,10 @@ CSRF_TRUSTED_ORIGINS = [
     for origin in os.environ.get('DJANGO_CSRF_TRUSTED_ORIGINS', '').split(',')
     if origin.strip()
 ]
+# Render fournit l’URL publique au runtime (ex. https://libtrack-amgu.onrender.com)
+_render_url = os.environ.get('RENDER_EXTERNAL_URL', '').strip().rstrip('/')
+if _render_url and _render_url not in CSRF_TRUSTED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS = [*CSRF_TRUSTED_ORIGINS, _render_url]
 
 INSTALLED_APPS = [
     'django.contrib.admin',

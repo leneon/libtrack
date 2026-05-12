@@ -20,6 +20,7 @@ services:
       - key: DJANGO_SECRET_KEY
         sync: false
       - key: DJANGO_ALLOWED_HOSTS
-        sync: false
+        value: "libtrack-amgu.onrender.com"
+      # Optionnel : CSRF est aussi rempli via RENDER_EXTERNAL_URL dans settings.py
       - key: DJANGO_CSRF_TRUSTED_ORIGINS
-        sync: false
+        value: "https://libtrack-amgu.onrender.com"
