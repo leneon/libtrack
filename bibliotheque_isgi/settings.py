@@ -7,11 +7,18 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', 'django-insecure-key-for-libtra
 
 DEBUG = os.environ.get('DJANGO_DEBUG', 'True').lower() == 'true'
 
+# Si DJANGO_ALLOWED_HOSTS est défini mais vide (ex. champ vide sur PythonAnywhere),
+# ne pas laisser ALLOWED_HOSTS vide : avec DEBUG=False Django refuse de démarrer.
+_allowed_hosts_raw = os.environ.get('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost')
+if _allowed_hosts_raw is not None and not str(_allowed_hosts_raw).strip():
+    _allowed_hosts_raw = '127.0.0.1,localhost'
 ALLOWED_HOSTS = [
     host.strip()
-    for host in os.environ.get('DJANGO_ALLOWED_HOSTS', '127.0.0.1,localhost').split(',')
+    for host in _allowed_hosts_raw.split(',')
     if host.strip()
 ]
+
+ALLOWED_HOSTS.append('.onrender.com')
 
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
@@ -41,6 +48,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'bibliotheque_isgi.middleware.EtablissementMiddleware',
+    
 ]
 
 ROOT_URLCONF = 'bibliotheque_isgi.urls'
@@ -98,3 +106,4 @@ CSRF_COOKIE_SECURE = os.environ.get('DJANGO_CSRF_COOKIE_SECURE', 'False').lower(
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/login/'
+
