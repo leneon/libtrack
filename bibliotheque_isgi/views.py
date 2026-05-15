@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login
+from django.contrib.auth import authenticate, login, update_session_auth_hash
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib import messages
 from django.contrib.auth.models import User
@@ -79,3 +79,46 @@ def ajouter_utilisateur(request):
 def liste_utilisateurs(request):
     utilisateurs = User.objects.all().select_related('profile')
     return render(request, 'liste_utilisateurs.html', {'utilisateurs': utilisateurs})
+
+
+@login_required
+def parametres(request):
+    user = request.user
+    profile = getattr(user, 'profile', None)
+
+    if request.method == 'POST':
+        user.first_name = request.POST.get('prenom', '').strip()
+        user.last_name = request.POST.get('nom', '').strip()
+        user.email = request.POST.get('email', '').strip()
+        user.save()
+
+        if profile:
+            profile.telephone = request.POST.get('telephone', '').strip()
+            profile.save()
+
+        new_password = request.POST.get('new_password', '')
+        confirm_password = request.POST.get('confirm_password', '')
+        if new_password or confirm_password:
+            if new_password != confirm_password:
+                messages.error(request, 'Les mots de passe ne correspondent pas.')
+                return redirect('parametres')
+            if len(new_password) < 6:
+                messages.error(request, 'Le mot de passe doit contenir au moins 6 caractères.')
+                return redirect('parametres')
+            user.set_password(new_password)
+            user.save()
+            update_session_auth_hash(request, user)
+
+        messages.success(request, 'Profil mis à jour avec succès.')
+        return redirect('parametres')
+
+    role_labels = {
+        'super_admin': 'Super Admin',
+        'admin': 'Admin',
+        'bibliothecaire': 'Bibliothécaire',
+    }
+    context = {
+        'profile': profile,
+        'role_label': role_labels.get(request.user_role, 'Utilisateur'),
+    }
+    return render(request, 'livres/parametres.html', context)

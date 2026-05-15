@@ -1,329 +1,232 @@
-<!DOCTYPE html>
-<html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LibTrack - Tableau de bord</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; background: #f0f4f8; }
+{% extends 'livres/base_libtrack.html' %}
 
-        /* Animations existantes */
-        @keyframes gentleColorChange {
-            0% { color: #3b82f6; text-shadow: 0 0 5px rgba(59,130,246,0.3); }
-            25% { color: #8b5cf6; text-shadow: 0 0 5px rgba(139,92,246,0.3); }
-            50% { color: #10b981; text-shadow: 0 0 5px rgba(16,185,129,0.3); }
-            75% { color: #f59e0b; text-shadow: 0 0 5px rgba(245,158,11,0.3); }
-            100% { color: #3b82f6; text-shadow: 0 0 5px rgba(59,130,246,0.3); }
-        }
+{% block title %}LibTrack - Tableau de bord{% endblock %}
 
-        @keyframes welcomeGlow {
-            0% { box-shadow: 0 10px 25px rgba(59,130,246,0.3); background: linear-gradient(135deg, #3b82f6, #2563eb); }
-            25% { box-shadow: 0 10px 30px rgba(139,92,246,0.4); background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
-            50% { box-shadow: 0 10px 30px rgba(16,185,129,0.4); background: linear-gradient(135deg, #10b981, #059669); }
-            75% { box-shadow: 0 10px 30px rgba(245,158,11,0.4); background: linear-gradient(135deg, #f59e0b, #d97706); }
-            100% { box-shadow: 0 10px 25px rgba(59,130,246,0.3); background: linear-gradient(135deg, #3b82f6, #2563eb); }
-        }
+{% block extra_css %}
+<style>
+    @keyframes welcomeGlow {
+        0% { box-shadow: 0 10px 25px rgba(59,130,246,0.3); background: linear-gradient(135deg, #3b82f6, #2563eb); }
+        25% { box-shadow: 0 10px 30px rgba(139,92,246,0.4); background: linear-gradient(135deg, #8b5cf6, #6d28d9); }
+        50% { box-shadow: 0 10px 30px rgba(16,185,129,0.4); background: linear-gradient(135deg, #10b981, #059669); }
+        75% { box-shadow: 0 10px 30px rgba(245,158,11,0.4); background: linear-gradient(135deg, #f59e0b, #d97706); }
+        100% { box-shadow: 0 10px 25px rgba(59,130,246,0.3); background: linear-gradient(135deg, #3b82f6, #2563eb); }
+    }
+    @keyframes welcomeFloat {
+        0% { transform: translateY(0px); }
+        50% { transform: translateY(-5px); }
+        100% { transform: translateY(0px); }
+    }
+    @keyframes avatarPulse {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.1); opacity: 0.9; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+    .welcome-card {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        border-radius: 20px; padding: 25px 30px; margin-bottom: 25px;
+        display: flex; justify-content: space-between; align-items: center;
+        color: white; transition: all 0.3s;
+        animation: welcomeGlow 8s ease-in-out infinite, welcomeFloat 4s ease-in-out infinite;
+    }
+    .welcome-text { min-width: 0; flex: 1; overflow: hidden; }
+    .welcome-text h2 {
+        font-size: 1.5rem; font-weight: 700; margin-bottom: 8px;
+        display: flex; align-items: center; gap: 10px; min-width: 0;
+    }
+    .welcome-text h2 i { flex-shrink: 0; }
+    #welcomeMessage {
+        min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .welcome-text p { opacity: 0.9; font-size: 0.9rem; overflow: hidden; text-overflow: ellipsis; }
+    .welcome-avatar {
+        background: rgba(255,255,255,0.2); border-radius: 50%; padding: 15px;
+        animation: avatarPulse 3s ease-in-out infinite;
+    }
+    .welcome-avatar i { font-size: 2rem; }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
+    .stat-card {
+        background: white; padding: 18px; border-radius: 16px; display: flex;
+        justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+        transition: all 0.3s;
+    }
+    .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+    .stat-value { font-size: 1.8rem; font-weight: 800; color: #1a2a3a; }
+    .stat-label { color: #6c86a0; font-size: 0.75rem; margin-top: 5px; }
+    .stat-icon { width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
+    .bg-blue { background: #e8f0fe; color: #3b82f6; }
+    .bg-green { background: #e6f7ec; color: #2ecc71; }
+    .bg-orange { background: #fff4e6; color: #f39c12; }
+    .bg-red { background: #fee8e8; color: #e74c3c; }
+    .action-buttons { display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap; }
+    .btn-action {
+        padding: 12px 22px; border-radius: 12px; text-decoration: none; font-weight: 600;
+        display: inline-flex; align-items: center; gap: 10px; transition: all 0.3s;
+    }
+    .btn-primary { background: #3b82f6; color: white; }
+    .btn-primary:hover { background: #2563eb; transform: translateY(-2px); }
+    .btn-success { background: #10b981; color: white; }
+    .btn-success:hover { background: #059669; transform: translateY(-2px); }
+    .btn-info { background: #8b5cf6; color: white; }
+    .btn-info:hover { background: #6d28d9; transform: translateY(-2px); }
+    .btn-warning { background: #f59e0b; color: white; }
+    .btn-warning:hover { background: #d97706; transform: translateY(-2px); }
+    .search-bar {
+        background: white; padding: 12px 20px; border-radius: 50px; margin-bottom: 20px;
+        display: flex; gap: 12px; align-items: center; flex-wrap: wrap; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .search-bar input { flex: 1; padding: 12px 18px; border: none; background: #f1f5f9; border-radius: 40px; font-size: 0.9rem; outline: none; }
+    .search-bar input:focus { background: white; box-shadow: 0 0 0 2px #3b82f6; }
+    .search-bar button { background: #3b82f6; color: white; border: none; padding: 12px 28px; border-radius: 40px; cursor: pointer; font-weight: 600; }
+    .table-container { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 14px 12px; background: #f8fafc; font-weight: 600; color: #475569; font-size: 0.75rem; text-transform: uppercase; }
+    td { padding: 12px; border-bottom: 1px solid #eef2f6; font-size: 0.85rem; }
+    tr:hover { background: #f8fafc; }
+    .btn-return { background: #e74c3c; color: white; border: none; padding: 5px 12px; border-radius: 8px; cursor: pointer; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 5px; }
+    .btn-return:hover { background: #c0392b; }
+    @media (max-width: 768px) {
+        .welcome-card { align-items: flex-start; padding: 20px; min-width: 0; }
+        .welcome-text h2 { font-size: 1.15rem; }
+        .welcome-avatar { display: none; }
+        .stats-grid { grid-template-columns: repeat(2, 1fr); }
+        .action-buttons { flex-direction: column; }
+        .btn-action { justify-content: center; width: 100%; }
+        .search-bar { border-radius: 18px; }
+        .search-bar input, .search-bar button { flex: 1 1 100%; }
+        .table-container { overflow-x: auto; }
+        table { min-width: 900px; }
+    }
+    @media (max-width: 480px) {
+        .stats-grid { grid-template-columns: 1fr; }
+        .welcome-text h2 { font-size: 1.2rem; }
+    }
+</style>
+{% endblock %}
 
-        @keyframes welcomeFloat {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-5px); }
-            100% { transform: translateY(0px); }
-        }
-
-        @keyframes avatarPulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.1); opacity: 0.9; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-
-        .animated-logo {
-            animation: gentleColorChange 6s ease-in-out infinite;
-            font-weight: 800;
-        }
-
-        .sidebar-header h2 i {
-            animation: gentleColorChange 6s ease-in-out infinite;
-        }
-
-        .welcome-card {
-            background: linear-gradient(135deg, #3b82f6, #2563eb);
-            border-radius: 20px; padding: 25px 30px; margin-bottom: 25px;
-            display: flex; justify-content: space-between; align-items: center;
-            color: white; transition: all 0.3s;
-            animation: welcomeGlow 8s ease-in-out infinite, welcomeFloat 4s ease-in-out infinite;
-        }
-        .welcome-text h2 { font-size: 1.5rem; font-weight: 700; margin-bottom: 8px; display: flex; align-items: center; gap: 10px; }
-        .welcome-text p { opacity: 0.9; font-size: 0.9rem; }
-        .welcome-avatar { 
-            background: rgba(255,255,255,0.2); border-radius: 50%; padding: 15px;
-            animation: avatarPulse 3s ease-in-out infinite;
-        }
-        .welcome-avatar i { font-size: 2rem; }
-
-        /* Sidebar */
-        .sidebar {
-            position: fixed; top: 0; left: 0; width: 280px; height: 100%;
-            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
-            box-shadow: 4px 0 20px rgba(0,0,0,0.1);
-        }
-        .sidebar-header { padding: 30px 25px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .sidebar-header h2 { font-size: 1.8rem; font-weight: 700; color: white; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .sidebar-header p { font-size: 0.7rem; color: #94a3b8; margin-top: 8px; }
-
-        .sidebar-menu { padding: 20px 15px; }
-        .sidebar-menu a {
-            display: flex; align-items: center; gap: 14px; padding: 12px 20px; margin: 6px 0;
-            color: #cbd5e1; text-decoration: none; border-radius: 12px; transition: all 0.3s; font-weight: 500;
-            width: 100%;
-        }
-        .sidebar-menu a i { width: 24px; font-size: 1.1rem; text-align: center; }
-        .sidebar-menu a:hover { background: rgba(59,130,246,0.15); color: white; }
-        .sidebar-menu a.active { background: #3b82f6; color: white; }
-
-        /* Main */
-        .main-content { margin-left: 280px; padding: 30px 40px; }
-
-        .top-bar {
-            background: white; padding: 15px 25px; border-radius: 16px; margin-bottom: 25px;
-            display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        .page-title h1 { font-size: 1.5rem; font-weight: 700; color: #1a2a3a; }
-        .page-title p { color: #6c86a0; font-size: 0.8rem; margin-top: 4px; }
-
-        /* Stats Cards */
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px; }
-        .stat-card {
-            background: white; padding: 18px; border-radius: 16px; display: flex;
-            justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            transition: all 0.3s;
-        }
-        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
-        .stat-value { font-size: 1.8rem; font-weight: 800; color: #1a2a3a; }
-        .stat-label { color: #6c86a0; font-size: 0.75rem; margin-top: 5px; }
-        .stat-icon { width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; }
-        .bg-blue { background: #e8f0fe; color: #3b82f6; }
-        .bg-green { background: #e6f7ec; color: #2ecc71; }
-        .bg-orange { background: #fff4e6; color: #f39c12; }
-        .bg-red { background: #fee8e8; color: #e74c3c; }
-
-        /* Action Buttons */
-        .action-buttons {
-            display: flex; gap: 15px; margin-bottom: 25px; flex-wrap: wrap;
-        }
-        .btn-action {
-            padding: 12px 22px; border-radius: 12px; text-decoration: none; font-weight: 600;
-            display: inline-flex; align-items: center; gap: 10px; transition: all 0.3s;
-        }
-        .btn-primary { background: #3b82f6; color: white; }
-        .btn-primary:hover { background: #2563eb; transform: translateY(-2px); }
-        .btn-success { background: #10b981; color: white; }
-        .btn-success:hover { background: #059669; transform: translateY(-2px); }
-        .btn-info { background: #8b5cf6; color: white; }
-        .btn-info:hover { background: #6d28d9; transform: translateY(-2px); }
-        .btn-warning { background: #f59e0b; color: white; }
-        .btn-warning:hover { background: #d97706; transform: translateY(-2px); }
-
-        /* Search Bar */
-        .search-bar {
-            background: white; padding: 12px 20px; border-radius: 50px; margin-bottom: 20px;
-            display: flex; gap: 12px; align-items: center; flex-wrap: wrap; box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-        }
-        .search-bar input { flex: 1; padding: 12px 18px; border: none; background: #f1f5f9; border-radius: 40px; font-size: 0.9rem; outline: none; }
-        .search-bar input:focus { background: white; box-shadow: 0 0 0 2px #3b82f6; }
-        .search-bar button { background: #3b82f6; color: white; border: none; padding: 12px 28px; border-radius: 40px; cursor: pointer; font-weight: 600; }
-
-        /* Table */
-        .table-container { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        table { width: 100%; border-collapse: collapse; }
-        th { text-align: left; padding: 14px 12px; background: #f8fafc; font-weight: 600; color: #475569; font-size: 0.75rem; text-transform: uppercase; }
-        td { padding: 12px; border-bottom: 1px solid #eef2f6; font-size: 0.85rem; }
-        tr:hover { background: #f8fafc; }
-        .btn-return { background: #e74c3c; color: white; border: none; padding: 5px 12px; border-radius: 8px; cursor: pointer; font-size: 0.75rem; display: inline-flex; align-items: center; gap: 5px; }
-        .btn-return:hover { background: #c0392b; }
-
-        .footer { text-align: center; padding: 20px; color: #6c86a0; font-size: 0.7rem; margin-top: 20px; border-top: 1px solid #eef2f8; }
-
-        @media (max-width: 768px) {
-            .sidebar { width: 70px; }
-            .sidebar-header { padding: 25px 10px; }
-            .sidebar-header h2 span, .sidebar-header p, .sidebar-menu a span, .sidebar-menu button span { display: none; }
-            .sidebar-menu { padding: 15px 10px; }
-            .sidebar-menu a, .sidebar-menu button { justify-content: center; padding: 12px !important; }
-            .sidebar-menu a i, .sidebar-menu button i { width: auto; }
-            .main-content { margin-left: 70px; padding: 15px; }
-            .top-bar { align-items: flex-start; padding: 16px; }
-            .page-title h1 { font-size: 1.25rem; }
-            .welcome-card { align-items: flex-start; padding: 20px; }
-            .welcome-avatar { display: none; }
-            .stats-grid { grid-template-columns: repeat(2, 1fr); }
-            .action-buttons { flex-direction: column; }
-            .btn-action { justify-content: center; width: 100%; }
-            .search-bar { border-radius: 18px; }
-            .search-bar input, .search-bar button { flex: 1 1 100%; }
-            .table-container { overflow-x: auto; }
-            table { min-width: 900px; }
-        }
-
-        @media (max-width: 480px) {
-            .main-content { padding: 15px 10px; }
-            .stats-grid { grid-template-columns: 1fr; }
-            .welcome-text h2 { font-size: 1.2rem; }
-        }
-    </style>
-</head>
-<body>
-    <div class="sidebar">
-        <div class="sidebar-header">
-            <h2><i class="fas fa-book-open"></i><span class="animated-logo"> LibTrack</span></h2>
-            <p>Gestion de bibliothèque</p>
-        </div>
-        <div class="sidebar-menu">
-            <a href="/" class="active"><i class="fas fa-chart-line"></i><span> Dashboard</span></a>
-            <a href="/non-rendus/"><i class="fas fa-exclamation-triangle"></i><span> Non rendus</span></a>
-            <a href="/historique/"><i class="fas fa-history"></i><span> Historique</span></a>
-            <a href="/tous-les-livres/"><i class="fas fa-book"></i><span> Tous les livres</span></a>
-            <a href="/recherche/"><i class="fas fa-search"></i><span> Recherche</span></a>
-            
-            <form method="post" action="/admin/logout/" style="margin: 0; padding: 0; width: 100%;">
-                {% csrf_token %}
-                <button type="submit" style="display: flex; align-items: center; gap: 14px; padding: 12px 20px; margin: 6px 0; color: #cbd5e1; background: none; border: none; border-radius: 12px; width: 100%; cursor: pointer; font-family: 'Inter', sans-serif; font-size: 1rem;">
-                    <i class="fas fa-sign-out-alt"></i><span> Déconnexion</span>
-                </button>
-            </form>
-        </div>
+{% block content %}
+<div class="top-bar">
+    <div class="page-title">
+        <h1><i class="fas fa-chalkboard-user" aria-hidden="true"></i><span class="page-title-text">Tableau de bord</span></h1>
     </div>
+    {% include 'livres/includes/role_badge.html' %}
+    <p class="page-subtitle"><i class="fas fa-calendar-alt" aria-hidden="true"></i> Suivi des prêts en temps réel</p>
+</div>
 
-    <div class="main-content">
-        <div class="top-bar">
-            <div class="page-title">
-                <h1><i class="fas fa-chalkboard-user"></i> Tableau de bord</h1>
-                <p><i class="fas fa-calendar-alt"></i> Suivi des prêts en temps réel</p>
-            </div>
-            <div class="admin-badge">
-                <i class="fas fa-user-shield"></i>
-                <span>Administrateur</span>
-            </div>
-        </div>
-
-        <div class="welcome-card">
-            <div class="welcome-text">
-                <h2><i class="fas fa-hand-peace"></i> <span id="welcomeMessage">Bonjour, {{ request.user.username|default:"Bibliothécaire" }} !</span></h2>
-                <p id="motivationMessage"><i class="fas fa-chart-line"></i> Voici le résumé de votre bibliothèque aujourd'hui</p>
-            </div>
-            <div class="welcome-avatar">
-                <i class="fas fa-user-graduate"></i>
-            </div>
-        </div>
-
-        <div class="stats-grid">
-            <div class="stat-card"><div><div class="stat-value">{{ total_etudiants|default:"0" }}</div><div class="stat-label"><i class="fas fa-users"></i> Étudiants</div></div><div class="stat-icon bg-blue"><i class="fas fa-user-graduate"></i></div></div>
-            <div class="stat-card"><div><div class="stat-value">{{ livres_disponibles|default:"0" }}</div><div class="stat-label"><i class="fas fa-book"></i> Livres disponibles</div></div><div class="stat-icon bg-green"><i class="fas fa-book-open"></i></div></div>
-            <div class="stat-card"><div><div class="stat-value">{{ prets_count|default:"0" }}</div><div class="stat-label"><i class="fas fa-hourglass-half"></i> Prêts en cours</div></div><div class="stat-icon bg-orange"><i class="fas fa-hand-holding-heart"></i></div></div>
-            <div class="stat-card"><div><div class="stat-value">{{ prets_retard|default:"0" }}</div><div class="stat-label"><i class="fas fa-bell"></i> En retard</div></div><div class="stat-icon bg-red"><i class="fas fa-exclamation-triangle"></i></div></div>
-        </div>
-
-        <div class="action-buttons">
-            <a href="/admin/livres/livre/add/" class="btn-action btn-primary"><i class="fas fa-plus-circle"></i> <i class="fas fa-book"></i> Ajouter un livre</a>
-            <a href="/admin/etudiants/etudiant/add/" class="btn-action btn-success"><i class="fas fa-plus-circle"></i> <i class="fas fa-user-plus"></i> Ajouter un étudiant</a>
-            <a href="/admin/etudiants/etudiant/" class="btn-action btn-info"><i class="fas fa-list"></i> <i class="fas fa-users"></i> Voir étudiants</a>
-            <a href="/admin/livres/pret/add/" class="btn-action btn-warning"><i class="fas fa-hand-holding-heart"></i> <i class="fas fa-exchange-alt"></i> Créer un prêt</a>
-        </div>
-
-        <div class="search-bar">
-            <i class="fas fa-search"></i>
-            <input type="text" id="searchInput" placeholder="Rechercher un étudiant par nom, prénom, carte ou classe..." onkeyup="searchTable()">
-            <button onclick="searchTable()"><i class="fas fa-search"></i> Rechercher</button>
-        </div>
-
-        <div class="table-container">
-            <div style="overflow-x: auto;">
-                <table id="pretsTable">
-                    <thead>
-                        <tr>
-                            <th><i class="fas fa-user"></i> Étudiant</th>
-                            <th><i class="fas fa-phone-alt"></i> Téléphone</th>
-                            <th><i class="fas fa-graduation-cap"></i> Classe</th>
-                            <th><i class="fas fa-book"></i> Livre emprunté</th>
-                            <th><i class="fas fa-hashtag"></i> N° Livre</th>
-                            <th><i class="fas fa-map-marker-alt"></i> Emplacement</th>
-                            <th><i class="fas fa-calendar-alt"></i> Date emprunt</th>
-                            <th><i class="fas fa-calendar-check"></i> Retour prévu</th>
-                            <th><i class="fas fa-cog"></i> Action</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody">
-                        {% for pret in prets %}
-                        <tr>
-                            <td><strong>{{ pret.etudiant.nom }} {{ pret.etudiant.prenom }}</strong><br><small><i class="fas fa-id-card"></i> {{ pret.etudiant.carte_id }}</small></td>
-                            <td><i class="fas fa-phone-alt"></i> {{ pret.etudiant.telephone|default:"-" }}</td>
-                            <td><i class="fas fa-school"></i> {{ pret.etudiant.classe }}</td>
-                            <td><strong>{{ pret.livre.titre }}</strong><br><small><i class="fas fa-user-edit"></i> {{ pret.livre.auteur }}</small></td>
-                            <td><i class="fas fa-qrcode"></i> {{ pret.livre.numero_livre }}</td>
-                            <td><i class="fas fa-location-dot"></i> {{ pret.livre.emplacement }}</td>
-                            <td><i class="fas fa-calendar-alt"></i> {{ pret.date_emprunt|date:"d/m/Y" }}</td>
-                            <td {% if pret.date_retour_prevue < now %}style="color:#ef4444;"{% endif %}>
-                                <i class="fas fa-calendar-check"></i> {{ pret.date_retour_prevue|date:"d/m/Y" }}
-                             </td>
-                            <td>
-                                <form method="post" style="margin:0;">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="pret_id" value="{{ pret.id }}">
-                                    <button type="submit" class="btn-return" onclick="return confirm('Confirmer le retour du livre ?')">
-                                        <i class="fas fa-undo-alt"></i> Retourner
-                                    </button>
-                                </form>
-                             </td>
-                        </tr>
-                        {% empty %}
-                        <tr>
-                            <td colspan="9" style="text-align:center; padding:40px;">
-                                <i class="fas fa-check-circle" style="font-size:2rem; color:#2ecc71;"></i>
-                                <p>Aucun prêt en cours</p>
-                                <small>Tous les livres ont été retournés</small>
-                            </td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="footer">
-            <p><i class="fas fa-copyright"></i> 2026 LibTrack - Gestion de bibliothèque</p>
-            <p style="margin-top:5px;"><i class="fas fa-shield-alt"></i> Plateforme sécurisée</p>
-        </div>
+<div class="welcome-card">
+    <div class="welcome-text">
+        <h2><i class="fas fa-hand-peace"></i> <span id="welcomeMessage">Bonjour, {{ request.user.username|default:"Bibliothécaire" }} !</span></h2>
+        <p id="motivationMessage"><i class="fas fa-chart-line"></i> Voici le résumé de votre bibliothèque aujourd'hui</p>
     </div>
+    <div class="welcome-avatar">
+        <i class="fas fa-user-graduate"></i>
+    </div>
+</div>
 
-    <script>
-        function searchTable() {
-            let input = document.getElementById('searchInput').value.toLowerCase();
-            let rows = document.getElementById('tableBody').getElementsByTagName('tr');
-            for (let i = 0; i < rows.length; i++) {
-                let text = rows[i].innerText.toLowerCase();
-                rows[i].style.display = text.includes(input) ? '' : 'none';
-            }
+<div class="stats-grid">
+    <div class="stat-card"><div><div class="stat-value">{{ total_etudiants|default:"0" }}</div><div class="stat-label"><i class="fas fa-users"></i> Étudiants</div></div><div class="stat-icon bg-blue"><i class="fas fa-user-graduate"></i></div></div>
+    <div class="stat-card"><div><div class="stat-value">{{ livres_disponibles|default:"0" }}</div><div class="stat-label"><i class="fas fa-book"></i> Livres disponibles</div></div><div class="stat-icon bg-green"><i class="fas fa-book-open"></i></div></div>
+    <div class="stat-card"><div><div class="stat-value">{{ prets_count|default:"0" }}</div><div class="stat-label"><i class="fas fa-hourglass-half"></i> Prêts en cours</div></div><div class="stat-icon bg-orange"><i class="fas fa-hand-holding-heart"></i></div></div>
+    <div class="stat-card"><div><div class="stat-value">{{ prets_retard|default:"0" }}</div><div class="stat-label"><i class="fas fa-bell"></i> En retard</div></div><div class="stat-icon bg-red"><i class="fas fa-exclamation-triangle"></i></div></div>
+</div>
+
+<div class="action-buttons">
+    <a href="/admin/livres/livre/add/" class="btn-action btn-primary"><i class="fas fa-plus-circle"></i> <i class="fas fa-book"></i> Ajouter un livre</a>
+    <a href="/admin/etudiants/etudiant/add/" class="btn-action btn-success"><i class="fas fa-plus-circle"></i> <i class="fas fa-user-plus"></i> Ajouter un étudiant</a>
+    <a href="/admin/etudiants/etudiant/" class="btn-action btn-info"><i class="fas fa-list"></i> <i class="fas fa-users"></i> Voir étudiants</a>
+    <a href="/admin/livres/pret/add/" class="btn-action btn-warning"><i class="fas fa-hand-holding-heart"></i> <i class="fas fa-exchange-alt"></i> Créer un prêt</a>
+</div>
+
+<div class="search-bar">
+    <i class="fas fa-search"></i>
+    <input type="text" id="searchInput" placeholder="Rechercher un étudiant par nom, prénom, carte ou classe..." onkeyup="searchTable()">
+    <button onclick="searchTable()"><i class="fas fa-search"></i> Rechercher</button>
+</div>
+
+<div class="table-container">
+    <div style="overflow-x: auto;">
+        <table id="pretsTable">
+            <thead>
+                <tr>
+                    <th><i class="fas fa-user"></i> Étudiant</th>
+                    <th><i class="fas fa-phone-alt"></i> Téléphone</th>
+                    <th><i class="fas fa-graduation-cap"></i> Classe</th>
+                    <th><i class="fas fa-book"></i> Livre emprunté</th>
+                    <th><i class="fas fa-hashtag"></i> N° Livre</th>
+                    <th><i class="fas fa-map-marker-alt"></i> Emplacement</th>
+                    <th><i class="fas fa-calendar-alt"></i> Date emprunt</th>
+                    <th><i class="fas fa-calendar-check"></i> Retour prévu</th>
+                    <th><i class="fas fa-cog"></i> Action</th>
+                </tr>
+            </thead>
+            <tbody id="tableBody">
+                {% for pret in prets %}
+                <tr>
+                    <td><strong>{{ pret.etudiant.nom }} {{ pret.etudiant.prenom }}</strong><br><small><i class="fas fa-id-card"></i> {{ pret.etudiant.carte_id }}</small></td>
+                    <td><i class="fas fa-phone-alt"></i> {{ pret.etudiant.telephone|default:"-" }}</td>
+                    <td><i class="fas fa-school"></i> {{ pret.etudiant.classe }}</td>
+                    <td><strong>{{ pret.livre.titre }}</strong><br><small><i class="fas fa-user-edit"></i> {{ pret.livre.auteur }}</small></td>
+                    <td><i class="fas fa-qrcode"></i> {{ pret.livre.numero_livre }}</td>
+                    <td><i class="fas fa-location-dot"></i> {{ pret.livre.emplacement }}</td>
+                    <td><i class="fas fa-calendar-alt"></i> {{ pret.date_emprunt|date:"d/m/Y" }}</td>
+                    <td {% if pret.date_retour_prevue < now %}style="color:#ef4444;"{% endif %}>
+                        <i class="fas fa-calendar-check"></i> {{ pret.date_retour_prevue|date:"d/m/Y" }}
+                    </td>
+                    <td>
+                        <form method="post" style="margin:0;">
+                            {% csrf_token %}
+                            <input type="hidden" name="pret_id" value="{{ pret.id }}">
+                            <button type="submit" class="btn-return" onclick="return confirm('Confirmer le retour du livre ?')">
+                                <i class="fas fa-undo-alt"></i> Retourner
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" style="text-align:center; padding:40px;">
+                        <i class="fas fa-check-circle" style="font-size:2rem; color:#2ecc71;"></i>
+                        <p>Aucun prêt en cours</p>
+                        <small>Tous les livres ont été retournés</small>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="footer">
+    <p><i class="fas fa-copyright"></i> 2026 LibTrack - Gestion de bibliothèque</p>
+    <p style="margin-top:5px;"><i class="fas fa-shield-alt"></i> Plateforme sécurisée</p>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function searchTable() {
+        let input = document.getElementById('searchInput').value.toLowerCase();
+        let rows = document.getElementById('tableBody').getElementsByTagName('tr');
+        for (let i = 0; i < rows.length; i++) {
+            let text = rows[i].innerText.toLowerCase();
+            rows[i].style.display = text.includes(input) ? '' : 'none';
         }
+    }
 
-        // Messages de motivation (dynamiques)
-        const messages = [
-            { titre: "Bonjour, {{ request.user.username|default:'Cher bibliothécaire' }} !", texte: "Vous faites briller la connaissance chaque jour. Continuez !" },
-            { titre: "Belle journée, {{ request.user.username|default:'Cher bibliothécaire' }} !", texte: "Chaque livre rendu est une histoire qui continue." },
-            { titre: "Force à vous, {{ request.user.username|default:'Cher bibliothécaire' }} !", texte: "Votre travail permet aux étudiants d'apprendre." },
-            { titre: "Bonjour, {{ request.user.username|default:'Cher bibliothécaire' }} !", texte: "La bibliothèque est le coeur de l'université." },
-            { titre: "Objectif du jour, {{ request.user.username|default:'Cher bibliothécaire' }} !", texte: "Zéro livre en retard, c'est possible !" }
-        ];
+    const messages = [
+        { titre: "Bonjour, {{ request.user.username|default:'Cher bibliothécaire' }} !", texte: "Vous faites briller la connaissance chaque jour. Continuez !" },
+        { titre: "Belle journée, {{ request.user.username|default:'Cher bibliothécaire' }} !", texte: "Chaque livre rendu est une histoire qui continue." },
+        { titre: "Force à vous, {{ request.user.username|default:'Cher bibliothécaire' }} !", texte: "Votre travail permet aux étudiants d'apprendre." },
+        { titre: "Bonjour, {{ request.user.username|default:'Cher bibliothécaire' }} !", texte: "La bibliothèque est le coeur de l'université." },
+        { titre: "Objectif du jour, {{ request.user.username|default:'Cher bibliothécaire' }} !", texte: "Zéro livre en retard, c'est possible !" }
+    ];
 
-        let index = 0;
-        function changeWelcomeMessage() {
-            const msg = messages[index % messages.length];
-            document.getElementById('welcomeMessage').innerHTML = '<i class="fas fa-hand-peace"></i> ' + msg.titre;
-            document.getElementById('motivationMessage').innerHTML = '<i class="fas fa-chart-line"></i> ' + msg.texte;
-            index++;
-        }
-        setInterval(changeWelcomeMessage, 30000);
-    </script>
-</body>
-</html>
+    let index = 0;
+    function changeWelcomeMessage() {
+        const msg = messages[index % messages.length];
+        document.getElementById('welcomeMessage').textContent = msg.titre;
+        document.getElementById('motivationMessage').innerHTML = '<i class="fas fa-chart-line"></i> ' + msg.texte;
+        index++;
+    }
+    setInterval(changeWelcomeMessage, 30000);
+</script>
+{% endblock %}

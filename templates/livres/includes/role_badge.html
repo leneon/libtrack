@@ -1,0 +1,14 @@
+<div class="user-panel">
+    <div class="role-badge">
+        <a href="/parametres/" class="profile-link {% if request.path == '/parametres/' %}active{% endif %}">
+            <i class="fas fa-user-shield" aria-hidden="true"></i>
+            <span>
+                {% if request.user_role == 'super_admin' %}Super Admin
+                {% elif request.user_role == 'admin' %}Admin
+                {% elif request.user_role == 'bibliothecaire' %}Bibliothécaire
+                {% else %}Utilisateur{% endif %}
+            </span>
+        </a>
+    </div>
+ 
+</div>

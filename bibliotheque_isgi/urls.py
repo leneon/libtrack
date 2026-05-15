@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path, include
 from django.contrib.auth.views import LogoutView
-from .views import page_accueil, ajouter_utilisateur, liste_utilisateurs
+from .views import page_accueil, ajouter_utilisateur, liste_utilisateurs, parametres
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -10,4 +10,5 @@ urlpatterns = [
     path('', include('livres.urls')),
     path('ajouter-utilisateur/', ajouter_utilisateur, name='ajouter_utilisateur'),
     path('utilisateurs/', liste_utilisateurs, name='liste_utilisateurs'),
+    path('parametres/', parametres, name='parametres'),
 ]
